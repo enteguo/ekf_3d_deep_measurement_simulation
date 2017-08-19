@@ -42,7 +42,7 @@ end
 data.acc = acc;
 
 dym = [r_init;v_init;q_init]; 
-for idx = 1:const_step
+for idx = 1:const_step-1
     dym_state(1:10,idx) = dynamic_predict(dym ,acc(:,idx),aw(:,idx),T);
     dym = dym_state(1:10,idx);
 end 
@@ -73,6 +73,7 @@ data.lmk=lmk;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%生成观测%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %无噪声观测ob_nonoise
 idx_ob=0;
+flag = 0;
 for idx=1:const_step
     for idx_pt = 1:const_pt
         distance = (lmk(1,idx_pt)-dym_state(1,idx))^2+ (lmk(2,idx_pt)-dym_state(2,idx))^2+ (lmk(3,idx_pt)-dym_state(3,idx))^2;
@@ -84,20 +85,23 @@ for idx=1:const_step
                 ob_nonoise(idx_ob,1) = idx;
                 ob_nonoise(idx_ob,2) = idx_pt;
                 ob_nonoise(idx_ob,3:4) = h;
-            else
+                flag=1;
+            end      
+    end
+    if flag==0
                 idx_ob= idx_ob+1;
                 ob_nonoise(idx_ob,1) = idx;
                 ob_nonoise(idx_ob,2) = -1;
                 ob_nonoise(idx_ob,3:4) = [-1,-1];
-            end 
            
     end
+    flag =0;
 end
 
 %观测带噪声
 for idx = 1:size(ob_nonoise,1)
     if(ob_nonoise(idx,2)~=-1)
-        ob(idx,1:2) = ob(idx,1:2);
+        ob(idx,1:2) = ob_nonoise(idx,1:2);
         ob(idx,3:4) = ob_nonoise(idx,3:4) + normrnd(0,5,1,2);
     else
         ob(idx,:) = ob_nonoise(idx,:);
@@ -115,4 +119,4 @@ aw_noise = aw + normrnd(0,0.0001,size(aw));%测量角速度，有噪声
 data.acc_noise = acc_noise;
 data.aw_noise = aw_noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-save data
+save data data

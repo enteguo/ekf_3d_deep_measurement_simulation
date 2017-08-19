@@ -56,15 +56,29 @@ table=[];
 lmk=[];
 
 for idx_cell=1:size(ob_cell,2)
+     [p_xx,p_xm,p_mx,p_mm] = p_decompose(p);
+         [x,ft] =  dynamic_predict(dym ,acc(1:3, idx_img),aw(1:3, idx_img), t(idx_img) );  %预测，运动方程
+         b = Bw(t(idx_img),dym(7:10,1));                             %噪声的变换矩阵
+         p_xx = ft*p_xx*ft'+b*Q*b';
+         p_xm=ft*p_xm;
+         p=[p_xx,p_xm;
+         p_xm',p_mm];
+         dym=x;
+         dym_state(1:10,idx_img+1)=dym;
     for idx = 1:size(ob_cell{idx_cell},1)
         if(isempty(find(ismember(table(1,:), ob_cell{idx_cell}(idx,1)))))
             [lmk,p]=EKF_lmk_init(lmk,p,dym,ob_cell{idx}(idx,2:3),R, rho, rho_var);
             table = [table [ob_data(idx,1);size(p,1)]]; 
+        else
+            [p,lmk,dym]=kf_update(ob_data(idx,2:5),p,lmk,dym,R,ob_data(idx,1),table); 
+            
         end
     end
      if(isempty(find(ismember(table(1,:), ob_data(idx,1)))))
         [lmk,p]=EKF_lmk_init(lmk,p,dym,ob_cell{idx}(idx,2:3),R, rho, rho_var);
         table = [table [ob_data(idx,1);size(p,1)]]; 
+     else
+         
      end
          
     if(idx==1)                           %刚启动，初始化观测

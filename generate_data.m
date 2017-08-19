@@ -119,4 +119,4 @@ aw_noise = aw + normrnd(0,0.0001,size(aw));%测量角速度，有噪声
 data.acc_noise = acc_noise;
 data.aw_noise = aw_noise;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-save data
+save data data

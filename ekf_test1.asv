@@ -60,11 +60,15 @@ for idx_cell=1:size(ob_cell,2)
         if(isempty(find(ismember(table(1,:), ob_cell{idx_cell}(idx,1)))))
             [lmk,p]=EKF_lmk_init(lmk,p,dym,ob_cell{idx}(idx,2:3),R, rho, rho_var);
             table = [table [ob_data(idx,1);size(p,1)]]; 
+        else
+            [p,lmk,dym]=kf_update(ob_data(idx,2:5),p,lmk,dym,R,ob_data(idx,1),table); 
         end
     end
      if(isempty(find(ismember(table(1,:), ob_data(idx,1)))))
         [lmk,p]=EKF_lmk_init(lmk,p,dym,ob_cell{idx}(idx,2:3),R, rho, rho_var);
         table = [table [ob_data(idx,1);size(p,1)]]; 
+     else
+         
      end
          
     if(idx==1)                           %刚启动，初始化观测
