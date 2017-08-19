@@ -2,7 +2,7 @@ clear
 dbstop if error
 
 %%%%%%%%%%%%%%%%%%%%%%参数设置%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-const_step= 300;
+const_step= 100;
 n=1:1:const_step;
 K=[7.215377e+02,0.000000e+00,6.095593e+02;            %内参矩阵
     0.000000e+00 7.215377e+02 1.728540e+02;
@@ -49,13 +49,13 @@ end
 data.dym_state = dym_state;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%生成目标点三维位置%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-const_pt=60;
+const_pt=50;
 for idx=1:const_pt
-    if idx<=20
+    if idx<=50
         lmk(1,idx) = rand(1)*95+5;
-        lmk(2,idx) = rand(1)*5+2;
+        lmk(2,idx) = rand(1)*5;
         lmk(3,idx) = rand(1)*5;
-    elseif idx<=40
+    elseif idx<=20
         lmk(2,idx) = rand(1)*63;
         lmk(1,idx) =100+sqrt( (rand(1)*5+65)^2-(62-lmk(2,idx))^2) ;
         lmk(3,idx) = rand(1)*5;
@@ -113,8 +113,8 @@ data.ob_nonoise = ob_nonoise;
 data.ob = ob;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %给惯性传感器加噪声
-acc_noise = acc + normrnd(0,0.0001,size(acc)); %测量加速度，有噪声
-aw_noise = aw + normrnd(0,0.0001,size(aw));%测量角速度，有噪声
+acc_noise = acc + normrnd(0,0.00001,size(acc)); %测量加速度，有噪声
+aw_noise = aw + normrnd(0,0.00001,size(aw));%测量角速度，有噪声
 
 data.acc_noise = acc_noise;
 data.aw_noise = aw_noise;
