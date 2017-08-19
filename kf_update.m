@@ -1,9 +1,9 @@
 function [p,lmk,dym,kh]=kf_update(ob,p,lmk,dym,R,pt_idx,table)
        idx=find(ismember(table(1,:),pt_idx));
        p_idx=table(2,idx);
-       lmk_index = lmk(12*idx-11:12*idx-6,:);
+       lmk_index = lmk(6*idx-5:6*idx,:);
        [ms ,jx,jl]= measurement(lmk_index ,dym);                  %测量的估计
-       z = ob- ms;                              %测量值与测量的估计差值
+       z = ob' - ms;                              %测量值与测量的估计差值
         [p_xx,p_xm,p_mx,p_mm] = p_decompose(p);
        p_z=[p_xx,p(1:10,p_idx-11:p_idx-6);            
             p(p_idx-11:p_idx-6, 1:10), p(p_idx-11:p_idx-6, p_idx-11:p_idx-6)];
