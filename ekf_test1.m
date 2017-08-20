@@ -7,15 +7,15 @@ acc = data.acc_noise;  %加速度测量值
 aw = data.aw_noise;          %角速度测量值
 
 T = 1;  %时间周期
-const_step = 100; 
+const_step = data.const_step;   %总的步数
 %initialize
 init_r = [0 0 0]';                %摄像机位置初始化
 init_v = [1,0,0]';   %摄像机速度初始化
 init_q = [1,0,0,0]';    %摄像机角度初始化，四元数
 init_p = zeros(10,10);                %协方差矩阵初始化，初始状态认为是确定的
 
-Q = [(1e-4)*eye(3),zeros(3,3);
-    zeros(3,3),(1e-4)*eye(3)];           %运动方程协方差矩阵
+Q = [(1e-6)*eye(3),zeros(3,3);
+    zeros(3,3),(1e-6)*eye(3)];           %运动方程协方差矩阵
 R = [6,0;0,6];                     %观测方程协方差矩阵
 
 rho =0.1;              %lmk的深度

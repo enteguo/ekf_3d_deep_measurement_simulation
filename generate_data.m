@@ -8,18 +8,18 @@ K=[7.215377e+02,0.000000e+00,6.095593e+02;            %内参矩阵
     0.000000e+00 7.215377e+02 1.728540e+02;
     0.000000e+00 0.000000e+00 1.000000e+00];
 
-R_i2c =[ 0.0083,-0.9999,0.0142;                      %从IMU到cam旋转
-         0.0128,-0.0141,-0.9998;
-         0.9999,0.0085,0.0127];
-
-r_i2c=[-0.3292, 0.7116, -1.0898]';                     %从IMU到cam位移
+% R_i2c =[ 0.0083,-0.9999,0.0142;                      %从IMU到cam旋转
+%          0.0128,-0.0141,-0.9998;
+%          0.9999,0.0085,0.0127];
+% 
+% r_i2c=[-0.3292, 0.7116, -1.0898]';                     %从IMU到cam位移
 
 q_init = [1,0,0,0]';                         %旋转初始化
 v_init = [1,0,0]';                           %速度初始化
 r_init = [0,0,0]';                           %位移初始化
 
 T = 1;                                       %时间周期
-g=[0,0,-9.81]';
+g=[0,0,9.81]';
 aw = zeros(3,const_step); 
 %%运动有关的矩阵
 A = [eye(3),T*eye(3),zeros(3,4);           
@@ -49,13 +49,13 @@ end
 data.dym_state = dym_state;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%生成目标点三维位置%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-const_pt=50;
+const_pt=30;
 for idx=1:const_pt
-    if idx<=50
+    if idx<=30
         lmk(1,idx) = rand(1)*95+5;
         lmk(2,idx) = rand(1)*5;
         lmk(3,idx) = rand(1)*5;
-    elseif idx<=20
+    elseif idx<= 40
         lmk(2,idx) = rand(1)*63;
         lmk(1,idx) =100+sqrt( (rand(1)*5+65)^2-(62-lmk(2,idx))^2) ;
         lmk(3,idx) = rand(1)*5;
@@ -79,8 +79,7 @@ for idx=1:const_step
         distance = (lmk(1,idx_pt)-dym_state(1,idx))^2+ (lmk(2,idx_pt)-dym_state(2,idx))^2+ (lmk(3,idx_pt)-dym_state(3,idx))^2;
             if distance<400 && dym_state(1,idx)< lmk(1,idx_pt)
                 idx_ob= idx_ob+1;
-                hc = qua2rotm(dym_state(7:10,idx))*(lmk(:,idx_pt)-dym_state(1:3,idx));
-                hc = K*R_i2c*(hc-r_i2c);
+                hc = K*qua2rotm(dym_state(7:10,idx))*(lmk(:,idx_pt)-dym_state(1:3,idx));
                 h = [hc(1)/hc(3),hc(2)/hc(3)];  
                 ob_nonoise(idx_ob,1) = idx;
                 ob_nonoise(idx_ob,2) = idx_pt;
@@ -113,10 +112,11 @@ data.ob_nonoise = ob_nonoise;
 data.ob = ob;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %给惯性传感器加噪声
-acc_noise = acc + normrnd(0,0.00001,size(acc)); %测量加速度，有噪声
-aw_noise = aw + normrnd(0,0.00001,size(aw));%测量角速度，有噪声
+acc_noise = acc + normrnd(0,0.00001,size(acc,1),size(acc,2)); %测量加速度，有噪声
+aw_noise = aw + normrnd(0,0.00001,size(aw,1),size(aw,2));%测量角速度，有噪声
 
 data.acc_noise = acc_noise;
 data.aw_noise = aw_noise;
+data.const_step =const_step;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 save data data

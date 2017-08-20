@@ -38,9 +38,7 @@ l=[x,y,z,a,b,s].';
 % hi = qua2rotm(q)*(s*([x,y,z].'-r)+m(a,b));
 % hc = R_rect_02*R_i2c*(hi-s*r_i2c);
 % hc= P_rect_02*[hc;1];
-hi = qua2rotm(q)*(s*([x,y,z].'-r)+m(a,b));
-hc = R_i2c*(hi-s*r_i2c);
-hc = K*hc;
+hc = K*qua2rotm(q)*(s*([x,y,z].'-r)+m(a,b));
 %hc= K*hc+s*bx;
 
 h=[hc(1)/hc(3);hc(2)/hc(3)];
