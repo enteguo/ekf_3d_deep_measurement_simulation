@@ -8,11 +8,11 @@ K=[7.215377e+02,0.000000e+00,6.095593e+02;            %内参矩阵
     0.000000e+00 7.215377e+02 1.728540e+02;
     0.000000e+00 0.000000e+00 1.000000e+00];
 
-% R_i2c =[ 0.0083,-0.9999,0.0142;                      %从IMU到cam旋转
-%          0.0128,-0.0141,-0.9998;
-%          0.9999,0.0085,0.0127];
-% 
-% r_i2c=[-0.3292, 0.7116, -1.0898]';                     %从IMU到cam位移
+R_i2c =[ 0.0083,-0.9999,0.0142;                      %从IMU到cam旋转
+         0.0128,-0.0141,-0.9998;
+         0.9999,0.0085,0.0127];
+
+r_i2c=[-0.3292, 0.7116, -1.0898]';                     %从IMU到cam位移
 
 q_init = [1,0,0,0]';                         %旋转初始化
 v_init = [1,0,0]';                           %速度初始化
@@ -53,9 +53,9 @@ const_pt=30;
 for idx=1:const_pt
     if idx<=30
         lmk(1,idx) = rand(1)*95+5;
-        lmk(2,idx) = rand(1)*5;
-        lmk(3,idx) = rand(1)*5;
-    elseif idx<= 40
+        lmk(2,idx) = rand(1)*4-2;
+        lmk(3,idx) = rand(1)*4-2;
+    elseif idx<= 60
         lmk(2,idx) = rand(1)*63;
         lmk(1,idx) =100+sqrt( (rand(1)*5+65)^2-(62-lmk(2,idx))^2) ;
         lmk(3,idx) = rand(1)*5;
@@ -77,14 +77,18 @@ flag = 0;
 for idx=1:const_step
     for idx_pt = 1:const_pt
         distance = (lmk(1,idx_pt)-dym_state(1,idx))^2+ (lmk(2,idx_pt)-dym_state(2,idx))^2+ (lmk(3,idx_pt)-dym_state(3,idx))^2;
-            if distance<400 && dym_state(1,idx)< lmk(1,idx_pt)
-                idx_ob= idx_ob+1;
-                hc = K*qua2rotm(dym_state(7:10,idx))*(lmk(:,idx_pt)-dym_state(1:3,idx));
-                h = [hc(1)/hc(3),hc(2)/hc(3)];  
-                ob_nonoise(idx_ob,1) = idx;
-                ob_nonoise(idx_ob,2) = idx_pt;
-                ob_nonoise(idx_ob,3:4) = h;
+            if   (dym_state(1,idx)< lmk(1,idx_pt)) &&(distance<400)
+               
+                hc = K*R_i2c*(qua2rotm(dym_state(7:10,idx))*(lmk(:,idx_pt)-dym_state(1:3,idx))-r_i2c);
+                h = [hc(1)/hc(3),hc(2)/hc(3)];
+                if (h(1)>=0) && (h(1)<=1242) &&(h(2)>=0) &&(h(2)<=375)
+                %if (h(1)>=0) &&(h(2)>=0) 
+                    idx_ob= idx_ob+1;
+                    ob_nonoise(idx_ob,1) = idx;
+                    ob_nonoise(idx_ob,2) = idx_pt;
+                    ob_nonoise(idx_ob,3:4) = h;
                 flag=1;
+                end
             end      
     end
     if flag==0
@@ -102,6 +106,9 @@ for idx = 1:size(ob_nonoise,1)
     if(ob_nonoise(idx,2)~=-1)
         ob(idx,1:2) = ob_nonoise(idx,1:2);
         ob(idx,3:4) = ob_nonoise(idx,3:4) + normrnd(0,5,1,2);
+        while ~((ob(idx,3)>=0) && (ob(idx,3) <=1242) &&(ob(idx,4) >=0) && (ob(idx,4)<=375))
+          ob(idx,3:4) = ob_nonoise(idx,3:4) + normrnd(0,5,1,2);
+        end
     else
         ob(idx,:) = ob_nonoise(idx,:);
     end

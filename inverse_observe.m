@@ -20,13 +20,13 @@ q=[q1,q2,q3,q4].';
 motion_state=[r;v;q];
 y=[y1,y2].';
 
-hw = qua2rotm(q).'*inv(K)*[y;1];
+hw = qua2rotm(q).'*R_i2c'*inv(K)*[y;1];
 % a = atan2(hw(1),hw(3));
 % b = atan2(-hw(2),sqrt(hw(1)^2+hw(3)^2));
 % a = atan2(hw(2),hw(1));
 % b = atan2(sqrt(hw(1)^2+hw(3)^2),hw(3));
-a = atan2(hw(1),hw(3));
-b = atan2(-hw(2),sqrt(hw(1)^2+hw(3)^2));
+a = atan2(hw(2),hw(1));    %x,y的角度
+b = atan2(sqrt(hw(1)^2+hw(2)^2),hw(3));    %z和向量的角度
 % a = atan(sqrt(hw(1)^2+hw(2)^2)/hw(3));
 % b = atan(hw(2)/hw(1));
 

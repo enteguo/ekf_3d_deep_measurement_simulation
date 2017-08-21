@@ -7,7 +7,7 @@ acc = data.acc_noise;  %加速度测量值
 aw = data.aw_noise;          %角速度测量值
 
 T = 1;  %时间周期
-const_step = data.const_step;   %总的步数
+const_step =40;%data.const_step;   %总的步数
 %initialize
 init_r = [0 0 0]';                %摄像机位置初始化
 init_v = [1,0,0]';   %摄像机速度初始化
@@ -16,7 +16,7 @@ init_p = zeros(10,10);                %协方差矩阵初始化，初始状态认为是确定的
 
 Q = [(1e-6)*eye(3),zeros(3,3);
     zeros(3,3),(1e-6)*eye(3)];           %运动方程协方差矩阵
-R = [6,0;0,6];                     %观测方程协方差矩阵
+R = [20,0;0,20];                     %观测方程协方差矩阵
 
 rho =0.1;              %lmk的深度
 rho_var = 0.05;           %lmk深度的协方差
@@ -34,6 +34,7 @@ p=[p_xx,p_xm;
 ob_cell = cell(1,const_step);
 idx_state = 1;
 for idx=1:size(ob,1)
+    if idx_state<const_step
    if idx==1
      img_name = ob(idx,1);
      ob_cell{idx_state} = [ob_cell{idx_state};ob(idx,:)];
@@ -46,6 +47,7 @@ for idx=1:size(ob,1)
            img_name = ob(idx,1);
        end
    end
+    end
 end
 
 
@@ -108,6 +110,14 @@ end
 %     title('obj in 3D world');
 %     xlabel('x');ylabel('y');zlabel('z');
 % %end plot
+
+for idx=1:size(lmk_e,2)%%%lmk估计和真实值的差值
+if(sum(lmk_e(:,idx))==0)
+lmk_res(:,idx)=[0,0,0]';
+else
+lmk_res(:,idx)=  lmk_e(:,idx)-data.lmk(:,idx);
+end
+end
 
 estimate.dym_state=dym_state;
 estimate.lmk=lmk_position;
